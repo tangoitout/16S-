@@ -1,0 +1,114 @@
+code for fastqc
+in terminal 
+cd /gpfs/home/m/e/mengpu/Karst/Desktop/FastQC
+chmod a+x *
+./fastqc
+
+read for fastq file only.
+
+sratool kit
+tar -xvzf sratoolkit*.tar.gz
+sra=/gpfs/home/m/e/mengpu/Karst/Desktop/sratoolkit
+$sra/bin/./prefetch SRR (is the run number)
+$sra/bin/./fastq-dump SRR1145747 (the file number)
+
+
+rsem
+module load r
+module load java
+module load rsem
+
+
+
+##make reference
+gunzip ref/GCF_002224265.1_ASM222426v1_genomic.fna.gz
+cp ref/GCF_002224265.1_ASM222426v1_genomic.fna ref/gene.fa
+
+gunzip ref/GCF_002224265.1_ASM222426v1_genomic.gff.gz
+
+##convert gtf to gff
+rsem-prepare-reference --gff3 c.diff.gff \
+               --gff3-genes-as-transcripts \
+               --bowtie2 \
+               c.diff.fa \
+               c.diff
+module load cufflinks
+gffread c.diff.gff -T -o c.diff.gtf
+gffread -E c.diff.gff -o- > c.diff.gtf
+
+
+rsem-prepare-reference --gtf Mus_musculus.GRCm38.82.chr.gtf --bowtie  Mus_musculus.GRCm38.dna.toplevel.fa mouse_ref
+
+rsem-prepare-reference --gtf c.diff.gtf --bowtie  c.diff.fa c.diff
+
+#zuo every sample
+rsem-calculate-expression  --estimate-rspd -p 8 xxx.fastq xxx_ref sample1
+
+-p 8 :8 threads 
+--paired-end :input reads are paired-end
+--bowtie 2 :use bowtie2 to aligh (default is bowtie)
+--estimate-rspd : sequencing bias in the data: distributed across a transcript. 
+--append-names :append gene_name/transcript_name to the result files. 
+--output-genome-bam alignments: in genomic coordinates (only available references from a genome) 
+
+--two FASTQ files, first and second mates of the paired-end reads. 
+--RSEM where the references locate and where to output the results.
+
+#analysis step 1
+rsem-plot-model sample1 xxxx.pdf
+reads fraphs and pics
+for each run
+
+
+
+
+
+Because the reads are long (101bp), it might take a while for Bowtie 2 to align all reads. If you do not want to wait, you can download the Bowtie 2 alignments in BAM format to subdirectory exp
+
+
+
+
+the other way hisat2
+#to make refernece
+hisat2  -x index -U 
+for eukaryotes
+hisat2 -p 20 -q --dta -x $HST2INX -1 $DATADIR/czar1_xxxx.fastq.gz -2 vvvvv.fasta.gz   -S align.sam (output name)
+hisat2 -p 20 -q --dta--known-splicesite-infile $WORKDIR/splicesites.txt -x $HST2INX -1 $DATADIR/czar1_xxxx.fastq.gz -2 vvvvv.fasta.gz   -S align.sam (output name)
+sam file output
+
+Module load bowtie2
+bowtie2 -p 12 -x c.diff -1 L1-Week4_R1.fastq -2 L1-Week4_R2.fastq -S L1-Week4.sam
+
+pip install HTSeq
+
+htseq-count sam/x.sam ref/x.gtf>e1.txt
+
+r1,r2
+pairend reads
+
+
+HTseq
+(union default)
+htseq-count [options] alignment_files gff_file
+htseq-count -f bam -r name -i gene_id -s no -t exon alignment_files $ANNOT>PPP.TXT(OUTPUT)   gff_file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

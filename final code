@@ -1,0 +1,64 @@
+sratool kit
+tar -xvzf sratoolkit*.tar.gz
+sra=/gpfs/home/m/e/mengpu/Karst/Desktop/sratoolkit
+$sra/bin/./prefetch SRR (is the run number)
+$sra/bin/./fastq-dump SRR1145747 (the file number)
+
+cd /N/u/mengpu/Karst/Desktop/sratoolkit/bin
+./prefetch SRR1145747 <GET DATA>
+./fastq-dump SRR1145747 <CHANGE TO FASTQ>
+the one is donw will be in bin
+
+code for fastqc
+in terminal 
+cd /gpfs/home/m/e/mengpu/Karst/Desktop/FastQC
+chmod a+x *
+./fastqc
+read for fastq file only.
+
+module load trimmomatic
+cd /N/u/mengpu/Karst/Desktop/Trim
+java -jar trimmomatic-0.38.jar SE test.fastq output.fastq SLIDINGWINDOW:5:20 LEADING:5 TRAILING:5 MINLEN:20 ILLUMINACLIP:../adapters/TruSeq3-PE.fa:4:0:7
+
+java -jar trimmomatic-0.38.jar SE sample/test.fastq sample/output.fastq SLIDINGWINDOW:5:20 LEADING:5 TRAILING:5 MINLEN:20 ILLUMINACLIP:TruSeq3-PE.fa:4:0:7
+TruSeq3-PE.fa: is the barcode need to change
+java -jar trimmomatic-0.38.jar PE -phred33 input1.fastq input2.fastq pairedoutput1.fastq unpairedoutput1.fastq pairedoutput2.fastq unpairedoutput2.fastq SLIDINGWINDOW:5:20 LEADING:5 TRAILING:5 MINLEN:20
+
+module load bowtie2
+for sample in `ls /N/dc2/scratch/mengpu/NewData/sample/*-1.fastq`
+do
+dir="/N/dc2/scratch/mengpu/NewData/sample"
+base=$(basename $sample "-1.fastq")
+bowtie2 -p 12 -x ref/ecuti -1 ${dir}/${base}-1.fastq -2 ${dir}/${base}-2.fastq -S ${dir}/${base}.sam
+done
+
+pip install HTSeq
+for sample in `ls for sample in `ls /N/dc2/scratch/mengpu/NewData/sample/*.sam`
+do
+dir="/N/dc2/scratch/mengpu/NewData/sample"
+base=$(basename $sample ".sam")
+htseq-count ${dir}/${base}.sam ref/ecuti.gtf>${dir}/${base}.txt
+done
+
+##upzip everything
+for i in *.fastq.gz; do zcat "$i" > "${i%.*}"; done
+gunzip xxxx
+gunzip xxxx
+bowtie-build aaa.fa ref/a_ref
+
+bowtie2 -x ref/vv_ref -U sample/a1.fastq -S sam/a1.sam
+bowtie2 -x ref/vv_ref -1 1.fastq -2 2.fastq -S sam/a1.sam
+
+pip install HTSeq
+module load cufflinks
+gffread test/ref/aaa.gff -T -o test/ref/gene.gtf
+htseq-count sam/a2.sam reff/gene.gtf>txt/a2.txt
+htseq-count -i gene_name sam/a2.sam reff/gene.gtf>txt/a2.txt
+
+cd d:\data
+cat *.fasta.txt > d:\combined.fasta
+cat file1.fasta file2.fasta > combined.fasta
+
+
+
+bowtie2 -p 12 -x ref/ecuti -1 sample/GSF1749-EC-C1_S6_R1_001.fastq -2 sample/GSF1749-EC-C1_S6_R2_001.fastq -S sample/sam/ECc.sam
